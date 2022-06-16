@@ -1,5 +1,4 @@
-from __future__ import print_function
-from pycaw.pycaw import AudioUtilities, ISimpleAudioVolume, IAudioEndpointVolume, IAudioEndpointVolumeCallback
+from pycaw.pycaw import AudioUtilities
 import time
 
 
