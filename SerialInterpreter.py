@@ -59,4 +59,9 @@ if __name__ == "__main__":
     while interpreter.arduino.is_open:
         input = interpreter.read_input()
         interpreter.interpret_input(input)
-        print(interpreter.moved_down, interpreter.moved_up, interpreter.moved_left, interpreter.moved_right, interpreter.clicked)
+        print("Down {} - Up {} - Left {} - Right {} - Click {}"
+            .format(interpreter.moved_down, 
+                    interpreter.moved_up, 
+                    interpreter.moved_left, 
+                    interpreter.moved_right, 
+                    interpreter.clicked))

@@ -9,14 +9,25 @@ class AudioController:
 
     def update_sessions(self):
         self.sessions = AudioUtilities.GetAllSessions()
+        # for session in self.sessions:
+        #     if session.Process:
+        #         x= 2
+        #         #print(session.Process.name())
+        #     else:
+        #         self.sessions.remove(session)
+           
+            
 
     def mute(self, process_name):
         self.update_sessions()
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                interface.SetMute(1, None)
-                print(process_name, "has been muted.")  # debug
+        interface = self.sessions[self.active_session].SimpleAudioVolume
+        if self.sessions[self.active_session].Process:
+            interface.SetMute(1, None)
+        # for session in self.sessions:
+        #     interface = session.SimpleAudioVolume
+        #     if session.Process and session.Process.name() == process_name:
+        #         interface.SetMute(1, None)
+                #print(process_name, "has been muted.")  # debug
 
     def unmute(self, process_name):
         self.update_sessions()
@@ -24,14 +35,14 @@ class AudioController:
             interface = session.SimpleAudioVolume
             if session.Process and session.Process.name() == process_name:
                 interface.SetMute(0, None)
-                print(process_name, "has been unmuted.")  # debug
+                #print(process_name, "has been unmuted.")  # debug
 
     def process_volume(self, process_name):
         self.update_sessions()
         for session in self.sessions:
             interface = session.SimpleAudioVolume
             if session.Process and session.Process.name() == process_name:
-                print("Volume:", interface.GetMasterVolume())  # debug
+                #print("Volume:", interface.GetMasterVolume())  # debug
                 return interface.GetMasterVolume()
 
     def set_volume(self, process_name, decibels):
@@ -43,7 +54,7 @@ class AudioController:
                 # only set volume in the range 0.0 to 1.0
                 volume = min(1.0, max(0.0, decibels))
                 interface.SetMasterVolume(volume, None)
-                print("Volume set to", volume)  # debug
+                #print("Volume set to", volume)  # debug
 
     def decrease_volume(self, process_name, decibels):
         self.update_sessions()
@@ -54,7 +65,7 @@ class AudioController:
                 # 0.0 is the min value, reduce by decibels
                 volume = max(0.0, volume - decibels)
                 interface.SetMasterVolume(volume, None)
-                print("Volume reduced to", volume)  # debug
+                #print("Volume reduced to", volume)  # debug
 
     def increase_volume(self, process_name, decibels):
         self.update_sessions()
@@ -65,7 +76,7 @@ class AudioController:
                 # 1.0 is the max value, raise by decibels
                 volume = min(1.0, volume + decibels)
                 interface.SetMasterVolume(volume, None)
-                print("Volume raised to", volume)  # debug
+                #print("Volume raised to", volume)  # debug
 
 
 def main():
