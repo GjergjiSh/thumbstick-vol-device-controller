@@ -24,7 +24,6 @@ class Interpreter:
 
     def interpret_input(self, input:list) -> None:
         if input == None:
-            print('none')
             return
 
         x = int(input[0])

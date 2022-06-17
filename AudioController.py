@@ -5,6 +5,7 @@ import time
 class AudioController:
     def __init__(self):
         self.sessions = []
+        self.active_session = 0
 
     def update_sessions(self):
         self.sessions = AudioUtilities.GetAllSessions()
