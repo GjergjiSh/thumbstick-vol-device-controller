@@ -3,7 +3,8 @@ import time
 
 class Interpreter:
     def __init__(self, serial_port, serial_baudrate=115200, serial_timeout=.1):
-        self.arduino = serial.Serial(port=serial_port, baudrate=serial_baudrate, timeout=serial_timeout)
+        self.arduino = serial.Serial(
+            port=serial_port, baudrate=serial_baudrate, timeout=serial_timeout)
         self.moved_up = False
         self.moved_down = False
         self.moved_right = False
@@ -14,15 +15,14 @@ class Interpreter:
         if self.arduino.is_open:
             input = self.arduino.readline().decode("utf-8")
             input = input.split("-")
-            
+
             if len(input) == 1:
                 return
-        
+
             #print(input)
             return input
 
-
-    def interpret_input(self, input:list) -> None:
+    def interpret_input(self, input: list) -> None:
         if input == None:
             return
 
@@ -45,7 +45,7 @@ class Interpreter:
         else:
             self.moved_down = False
             self.moved_up = False
-        
+
         if z == "0\r\n":
             self.clicked = True
         else:
@@ -54,14 +54,15 @@ class Interpreter:
     def close(self) -> None:
         self.arduino.close()
 
+
 if __name__ == "__main__":
     interpreter = Interpreter(serial_port="COM3")
     while interpreter.arduino.is_open:
         input = interpreter.read_input()
         interpreter.interpret_input(input)
         print("Down {} - Up {} - Left {} - Right {} - Click {}"
-            .format(interpreter.moved_down, 
-                    interpreter.moved_up, 
-                    interpreter.moved_left, 
-                    interpreter.moved_right, 
-                    interpreter.clicked))
+              .format(interpreter.moved_down,
+                      interpreter.moved_up,
+                      interpreter.moved_left,
+                      interpreter.moved_right,
+                      interpreter.clicked))

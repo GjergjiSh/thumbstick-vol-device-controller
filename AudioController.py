@@ -1,6 +1,7 @@
 from pycaw.pycaw import AudioUtilities
 import time
 
+
 class AudioController:
     def __init__(self):
         self.sessions = []
@@ -9,7 +10,7 @@ class AudioController:
 
     def update_sessions(self):
         self.sessions = AudioUtilities.GetAllSessions()
-        self.interface = self.sessions[self.active_session].SimpleAudioVolume      
+        self.interface = self.sessions[self.active_session].SimpleAudioVolume
 
     def mute(self):
         self.update_sessions()
@@ -47,6 +48,7 @@ class AudioController:
         if self.sessions[self.active_session].Process:
             volume = min(1.0, volume + decibels)
             self.interface.SetMasterVolume(volume, None)
+
 
 def main():
     audio_controller = AudioController()
