@@ -1,91 +1,62 @@
 from pycaw.pycaw import AudioUtilities
 import time
 
-
 class AudioController:
     def __init__(self):
         self.sessions = []
         self.active_session = 0
+        self.interface = None
 
     def update_sessions(self):
         self.sessions = AudioUtilities.GetAllSessions()
-        # for session in self.sessions:
-        #     if session.Process:
-        #         x= 2
-        #         #print(session.Process.name())
-        #     else:
-        #         self.sessions.remove(session)
-           
-            
+        self.interface = self.sessions[self.active_session].SimpleAudioVolume      
 
-    def mute(self, process_name):
+    def mute(self):
+        self.update_sessions()
+        if self.sessions[self.active_session].Process:
+            self.interface.SetMute(1, None)
+
+    def unmute(self):
         self.update_sessions()
         interface = self.sessions[self.active_session].SimpleAudioVolume
         if self.sessions[self.active_session].Process:
-            interface.SetMute(1, None)
-        # for session in self.sessions:
-        #     interface = session.SimpleAudioVolume
-        #     if session.Process and session.Process.name() == process_name:
-        #         interface.SetMute(1, None)
-                #print(process_name, "has been muted.")  # debug
+            interface.SetMute(0, None)
 
-    def unmute(self, process_name):
+    def process_volume(self):
         self.update_sessions()
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                interface.SetMute(0, None)
-                #print(process_name, "has been unmuted.")  # debug
+        if self.sessions[self.active_session].Process:
+            return self.interface.GetMasterVolume()
 
-    def process_volume(self, process_name):
+    def set_volume(self, decibels):
         self.update_sessions()
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                #print("Volume:", interface.GetMasterVolume())  # debug
-                return interface.GetMasterVolume()
+        volume = self.process_volume()
+        if self.sessions[self.active_session].Process:
+            volume = min(1.0, max(0.0, decibels))
+            self.interface.SetMasterVolume(volume, None)
 
-    def set_volume(self, process_name, decibels):
+    def decrease_volume(self, decibels):
         self.update_sessions()
-        volume = self.process_volume(process_name)
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                # only set volume in the range 0.0 to 1.0
-                volume = min(1.0, max(0.0, decibels))
-                interface.SetMasterVolume(volume, None)
-                #print("Volume set to", volume)  # debug
+        volume = self.process_volume()
+        if self.sessions[self.active_session].Process:
+            volume = max(0.0, volume - decibels)
+            self.interface.SetMasterVolume(volume, None)
 
-    def decrease_volume(self, process_name, decibels):
+    def increase_volume(self, decibels):
         self.update_sessions()
-        volume = self.process_volume(process_name)
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                # 0.0 is the min value, reduce by decibels
-                volume = max(0.0, volume - decibels)
-                interface.SetMasterVolume(volume, None)
-                #print("Volume reduced to", volume)  # debug
-
-    def increase_volume(self, process_name, decibels):
-        self.update_sessions()
-        volume = self.process_volume(process_name)
-        for session in self.sessions:
-            interface = session.SimpleAudioVolume
-            if session.Process and session.Process.name() == process_name:
-                # 1.0 is the max value, raise by decibels
-                volume = min(1.0, volume + decibels)
-                interface.SetMasterVolume(volume, None)
-                #print("Volume raised to", volume)  # debug
-
+        volume = self.process_volume()
+        if self.sessions[self.active_session].Process:
+            volume = min(1.0, volume + decibels)
+            self.interface.SetMasterVolume(volume, None)
 
 def main():
     audio_controller = AudioController()
-    audio_controller.set_volume("chrome.exe", 1.0)
-    audio_controller.mute("chrome.exe")
-    audio_controller.decrease_volume("chrome.exe", 0.25)
-    audio_controller.increase_volume("chrome.exe", 0.05)
-    audio_controller.unmute("chrome.exe")
+    audio_controller.active_session = 1
+    audio_controller.set_volume(1.0)
+    audio_controller.mute()
+    time.sleep(1)
+    audio_controller.decrease_volume(0.25)
+    audio_controller.increase_volume(0.05)
+    audio_controller.unmute()
 
 
 if __name__ == "__main__":
