@@ -1,3 +1,4 @@
+from email.mime import audio
 import AudioController as AC
 import SerialInterpreter as SI
 
@@ -24,3 +25,5 @@ if __name__ == "__main__":
            audio_controller.increase_volume(0.1)
        elif interpreter.moved_down:
            audio_controller.decrease_volume(0.1)
+       elif interpreter.clicked:
+           audio_controller.switch_audio_output_device(-1)
