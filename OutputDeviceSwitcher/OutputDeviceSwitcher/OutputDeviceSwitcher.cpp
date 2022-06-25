@@ -1,138 +1,55 @@
 ﻿#include "OutputDeviceSwitcher.h"
 #include <iostream>
 
-#define VALIDADTE_HR (if (!SUCCEEDED(hr)) return -1;)
-
-int SetDefaultAudioPlaybackDeviceById(std::wstring device_id)
+int Set_Output_Device_By_Id(std::wstring device_id)
 {
-	IPolicyConfigVista *pPolicyConfig;
+	IPolicyConfigVista *policy_config;
 	ERole reserved = eConsole;
 
 	//COCREATEINSTANCE CALLED AGAIN MIGHT NEED TO REFRESH DEVICES AFTERALL
-	hr = CoCreateInstance(__uuidof(CPolicyConfigVistaClient), 
+	if (!SUCCEEDED(CoCreateInstance(__uuidof(CPolicyConfigVistaClient), 
 									NULL, 
 									CLSCTX_ALL, 
 									__uuidof(IPolicyConfigVista), 
-									(LPVOID *)&pPolicyConfig);
-
-	if (!SUCCEEDED(hr))
+									(LPVOID *)&policy_config)))
 		return -1;
 
-	hr = pPolicyConfig->SetDefaultEndpoint(device_id.c_str(), reserved);
-	pPolicyConfig->Release();
+	if (!SUCCEEDED(policy_config->SetDefaultEndpoint(device_id.c_str(), reserved)))
+		return -1;
 
+	policy_config->Release();
 	return 0;
 }
-
-// bool SetDefaultAudioPlaybackDeviceByIndex(UINT device_index)
-// {
-// 	HRESULT hr = CoInitialize(NULL);
-// 	bool result = false;
-
-// 	if (SUCCEEDED(hr))
-// 	{
-// 		IMMDeviceEnumerator *pEnum = NULL;
-
-// 		hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void **)&pEnum);
-
-// 		if (SUCCEEDED(hr))
-// 		{
-// 			IMMDeviceCollection *pDevices;
-
-// 			hr = pEnum->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &pDevices);
-
-// 			if (SUCCEEDED(hr))
-// 			{
-// 				UINT count;
-
-// 				pDevices->GetCount(&count);
-
-// 				if (SUCCEEDED(hr))
-// 				{
-// 					if (device_index >= 0 && device_index < count)
-// 					{
-// 						IMMDevice *pDevice;
-// 						hr = pDevices->Item(device_index, &pDevice);
-
-// 						if (SUCCEEDED(hr))
-// 						{
-// 							LPWSTR wstrID = NULL;
-
-// 							hr = pDevice->GetId(&wstrID);
-
-// 							if (SUCCEEDED(hr))
-// 							{
-// 								IPropertyStore *pStore;
-// 								hr = pDevice->OpenPropertyStore(STGM_READ, &pStore);
-
-// 								if (SUCCEEDED(hr))
-// 								{
-// 									PROPVARIANT friendlyName;
-
-// 									PropVariantInit(&friendlyName);
-// 									hr = pStore->GetValue(PKEY_Device_FriendlyName, &friendlyName);
-
-// 									if (SUCCEEDED(hr))
-// 									{
-// 										SetDefaultAudioPlaybackDeviceById(wstrID);
-// 										PropVariantClear(&friendlyName);
-
-// 										result = true;
-// 									}
-
-// 									pStore->Release();
-// 								}
-// 							}
-
-// 							pDevice->Release();
-// 						}
-// 					}
-// 				}
-
-// 				pDevices->Release();
-// 			}
-
-// 			pEnum->Release();
-// 		}
-// 	}
-
-// 	return result;
-// }
 
 int Init()
 {
-	hr = CoInitialize(NULL);
-	if (!SUCCEEDED(hr))
+	if (!SUCCEEDED(CoInitialize(NULL)))
 		return -1;
 
-	hr = CoCreateInstance(__uuidof(MMDeviceEnumerator),
+	if (!SUCCEEDED(CoCreateInstance(__uuidof(MMDeviceEnumerator),
 						  NULL,
 						  CLSCTX_ALL,
 						  __uuidof(IMMDeviceEnumerator),
-						  (void **)&pEnum);
-	if (!SUCCEEDED(hr))
+						  (void **)&device_enumerator)))
 		return -1;
 
-	if (RefreshDevicesState() != 0)
+	if (Refresh_Output_Devices_State() != 0)
 		return -1;
 
 	return 0;
 }
 
-int RefreshDevicesState()
+int Refresh_Output_Devices_State()
 {
-	hr = pEnum->GetDefaultAudioEndpoint(eRender,
+	if (!SUCCEEDED(device_enumerator->GetDefaultAudioEndpoint(eRender,
 										eMultimedia,
-										&pDefaultDevice);
-	if (!SUCCEEDED(hr))
+										&default_device)))
 		return -1;
 
-	hr = pDefaultDevice->GetId(&defaultDeviceId);
-	if (!SUCCEEDED(hr))
-		defaultDeviceId = NULL;
+	if (!SUCCEEDED(default_device->GetId(&default_device_id)))
+		default_device_id = NULL;
 
-	hr = pEnum->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &pDevices);
-	if (!SUCCEEDED(hr))
+	if (!SUCCEEDED(device_enumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &device_collection)))
 		return -1;
 
 	return 0;
@@ -140,134 +57,81 @@ int RefreshDevicesState()
 
 void Deinit()
 {
-	pDefaultDevice->Release();
-	pDevices->Release();
-	pEnum->Release();
+	default_device->Release();
+	device_collection->Release();
+	device_enumerator->Release();
 }
 
-int GetAudioDeviceCount()
+int Get_Output_Device_Count()
 {
 	// if (RefreshDevicesState() != 0)
 	// 	return -1;
 
 	UINT count;
-	pDevices->GetCount(&count);
+	device_collection->GetCount(&count);
 
 	return count;
 }
 
-int ListAudioDevices()
+int List_Output_Devices()
 {
 	// if (RefreshDevicesState() != 0)
 	// 	return -1;
 
-	int count = GetAudioDeviceCount();
+	int count = Get_Output_Device_Count();
 	if (count == -1)
 		return -1;
 
-	IMMDevice *pDevice;
-	IPropertyStore *pStore;
-	PROPVARIANT friendlyName;
-	BOOL isDefault;
-	LPWSTR wstrID; //= NULL;
+	IMMDevice *device;
+	IPropertyStore *property_store;
+	PROPVARIANT device_name;
+	BOOL is_default;
+	LPWSTR device_id; //= NULL;
 
 	for (int i = 0; i < count; i++)
 	{
-		hr = pDevices->Item(i, &pDevice);
-		if (!SUCCEEDED(hr))
+		if (!SUCCEEDED(device_collection->Item(i, &device)))
 			return -1;
 
-		hr = pDevice->GetId(&wstrID);
-		if (!SUCCEEDED(hr))
+		if (!SUCCEEDED(device->GetId(&device_id)))
 			return -1;
 
-		hr = pDevice->OpenPropertyStore(STGM_READ, &pStore);
-		if (!SUCCEEDED(hr))
+		if (!SUCCEEDED(device->OpenPropertyStore(STGM_READ, &property_store)))
 			return -1;
 		
-		PropVariantInit(&friendlyName);
-		hr = pStore->GetValue(PKEY_Device_FriendlyName, &friendlyName);
-		if (!SUCCEEDED(hr))
+		PropVariantInit(&device_name);
+		if (!SUCCEEDED(property_store->GetValue(PKEY_Device_FriendlyName, &device_name)))
 			return -1;
 
-		isDefault = wcscmp(wstrID, defaultDeviceId) == 0;
-		printf("%i %ws\n", isDefault, friendlyName.pwszVal);
-		PropVariantClear(&friendlyName);
+		is_default = wcscmp(device_id, default_device_id) == 0;
+		printf("%i %ws\n", is_default, device_name.pwszVal);
+		PropVariantClear(&device_name);
 	}
 
-	pStore->Release();
-	pDevice->Release();
+	property_store->Release();
+	device->Release();
 	return 0;
 }
 
-int SetDefaultAudioPlaybackDeviceByIndex(UINT device_index)
+int Set_Output_Device_By_Index(UINT device_index)
 {
-	int count = GetAudioDeviceCount();
+	int count = Get_Output_Device_Count();
 	if (count == 0)
 		return -1;
 
 	if (device_index >= 0 && device_index < count)
 	{
-		IMMDevice *pDevice;
-		hr = pDevices->Item(device_index, &pDevice);
-
-		if (!SUCCEEDED(hr))
+		IMMDevice *device;
+		if (!SUCCEEDED(device_collection->Item(device_index, &device)))
 			return -1;
 
-		LPWSTR wstrID; //= NULL;
-		hr = pDevice->GetId(&wstrID);
-		printf("%i", wstrID);
-		if (!SUCCEEDED(hr))
+		LPWSTR device_id;
+		printf("%i", device_id);
+		if (!SUCCEEDED(device->GetId(&device_id)))
 			return -1;
 
-		return SetDefaultAudioPlaybackDeviceById(wstrID);
+		return Set_Output_Device_By_Id(device_id);
 	}
 
 	return -1;
 }
-
-// bool SetDefaultAudioPlaybackDeviceByIndex(UINT device_index)
-// {
-// 	UINT count = GetAudioDeviceCount();
-// 	if (count == -1)
-// 		return false;
-
-// 	if (device_index >= 0 && device_index < count)
-// 	{
-// 		IMMDevice *pDevice;
-// 		HRESULT hr = pDevices->Item(device_index, &pDevice);
-
-// 		if (SUCCEEDED(hr))
-// 		{
-// 			LPWSTR wstrID = NULL;
-
-// 			hr = pDevice->GetId(&wstrID);
-
-// 			if (SUCCEEDED(hr))
-// 			{
-// 				IPropertyStore *pStore;
-// 				hr = pDevice->OpenPropertyStore(STGM_READ, &pStore);
-
-// 				if (SUCCEEDED(hr))
-// 				{
-// 					PROPVARIANT friendlyName;
-
-// 					PropVariantInit(&friendlyName);
-// 					hr = pStore->GetValue(PKEY_Device_FriendlyName, &friendlyName);
-
-// 					if (SUCCEEDED(hr))
-// 					{
-// 						SetDefaultAudioPlaybackDeviceById(wstrID);
-// 						PropVariantClear(&friendlyName);
-// 					}
-
-// 					pStore->Release();
-// 				}
-// 			}
-
-// 			pDevice->Release();
-// 		}
-// 	}
-
-// 	return true;
-// }

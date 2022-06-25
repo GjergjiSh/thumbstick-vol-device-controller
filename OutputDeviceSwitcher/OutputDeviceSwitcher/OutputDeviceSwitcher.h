@@ -12,11 +12,10 @@
 #include "Propidl.h"
 #include "Functiondiscoverykeys_devpkey.h"
 
-HRESULT hr;
-IMMDeviceEnumerator *pEnum = NULL;
-LPWSTR defaultDeviceId = NULL;
-IMMDevice *pDefaultDevice = NULL;
-IMMDeviceCollection *pDevices = NULL;
+IMMDeviceEnumerator *device_enumerator = NULL;
+LPWSTR default_device_id = NULL;
+IMMDevice *default_device = NULL;
+IMMDeviceCollection *device_collection = NULL;
 
 extern "C" {
 
@@ -29,12 +28,12 @@ extern "C" {
 
 	typedef void (*ProcessAudioPlaybackDeviceCallback)(LPWSTR, LPWSTR, BOOL);
 
-	__declspec(dllexport) int SetDefaultAudioPlaybackDeviceById(std::wstring devID);
-	__declspec(dllexport) int SetDefaultAudioPlaybackDeviceByIndex(UINT device_index);
-	__declspec(dllexport) int GetAudioDeviceCount();
 	__declspec(dllexport) int Init();
-	__declspec(dllexport) int RefreshDevicesState();
-	__declspec(dllexport) int ListAudioDevices();
+	__declspec(dllexport) int Set_Output_Device_By_Id(std::wstring device_id);
+	__declspec(dllexport) int Set_Output_Device_By_Index(UINT device_index);
+	__declspec(dllexport) int Get_Output_Device_Count();
+	__declspec(dllexport) int Refresh_Output_Devices_State();
+	__declspec(dllexport) int List_Output_Devices();
 	__declspec(dllexport) void Deinit();
 }
 
