@@ -2,6 +2,7 @@ from pycaw.pycaw import AudioUtilities
 import sounddevice as SD
 import time
 from enum import Enum
+import ctypes
 
 class Modes(Enum):
     APPLICATION = 1
