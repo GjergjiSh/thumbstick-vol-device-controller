@@ -12,8 +12,6 @@
 #include "Propidl.h"
 #include "Functiondiscoverykeys_devpkey.h"
 
-//std::vector<WindowsAudioPlaybackDevice> devices;
-
 HRESULT hr;
 IMMDeviceEnumerator *pEnum = NULL;
 LPWSTR defaultDeviceId = NULL;
@@ -31,15 +29,13 @@ extern "C" {
 
 	typedef void (*ProcessAudioPlaybackDeviceCallback)(LPWSTR, LPWSTR, BOOL);
 
-	__declspec(dllexport) bool SetDefaultAudioPlaybackDeviceById(std::wstring devID);
-	__declspec(dllexport) bool SetDefaultAudioPlaybackDeviceByIndex(UINT device_index);
-	//__declspec(dllexport) void EnumerateAudioPlaybackDevices();
+	__declspec(dllexport) int SetDefaultAudioPlaybackDeviceById(std::wstring devID);
+	__declspec(dllexport) int SetDefaultAudioPlaybackDeviceByIndex(UINT device_index);
 	__declspec(dllexport) int GetAudioDeviceCount();
 	__declspec(dllexport) int Init();
 	__declspec(dllexport) int RefreshDevicesState();
-	__declspec(dllexport) void Deinit();
 	__declspec(dllexport) int ListAudioDevices();
+	__declspec(dllexport) void Deinit();
 }
 
-//std::vector<WindowsAudioPlaybackDevice> GetAudioPlaybackDevices();
 
