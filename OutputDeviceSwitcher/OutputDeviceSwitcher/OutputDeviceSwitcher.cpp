@@ -51,6 +51,8 @@ int Refresh_Output_Devices_State()
 	if (!SUCCEEDED(device_enumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &device_collection)))
 		return -1;
 
+	Get_Output_Device_Count();
+
 	return 0;
 }
 
@@ -63,9 +65,6 @@ void Deinit()
 
 int Get_Output_Device_Count()
 {
-	// if (RefreshDevicesState() != 0)
-	// 	return -1;
-
 	device_collection->GetCount(&device_count);
 
 	return device_count;
@@ -73,10 +72,6 @@ int Get_Output_Device_Count()
 
 int List_Output_Devices()
 {
-	// if (RefreshDevicesState() != 0)
-	// 	return -1;
-
-	Get_Output_Device_Count();
 	if (device_count == -1)
 		return -1;
 
@@ -113,7 +108,6 @@ int List_Output_Devices()
 
 int Set_Output_Device_By_Index(UINT device_index)
 {
-	Get_Output_Device_Count();
 	if (device_count == -1)
 		return -1;
 
