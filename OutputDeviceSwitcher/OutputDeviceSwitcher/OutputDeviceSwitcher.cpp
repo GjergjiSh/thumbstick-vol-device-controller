@@ -1,5 +1,4 @@
 ﻿#include "OutputDeviceSwitcher.h"
-#include <iostream>
 
 int Set_Output_Device_By_Id(std::wstring device_id)
 {
@@ -67,10 +66,9 @@ int Get_Output_Device_Count()
 	// if (RefreshDevicesState() != 0)
 	// 	return -1;
 
-	UINT count;
-	device_collection->GetCount(&count);
+	device_collection->GetCount(&device_count);
 
-	return count;
+	return device_count;
 }
 
 int List_Output_Devices()
@@ -78,17 +76,17 @@ int List_Output_Devices()
 	// if (RefreshDevicesState() != 0)
 	// 	return -1;
 
-	int count = Get_Output_Device_Count();
-	if (count == -1)
+	Get_Output_Device_Count();
+	if (device_count == -1)
 		return -1;
 
 	IMMDevice *device;
 	IPropertyStore *property_store;
 	PROPVARIANT device_name;
 	BOOL is_default;
-	LPWSTR device_id; //= NULL;
+	LPWSTR device_id;
 
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < device_count; i++)
 	{
 		if (!SUCCEEDED(device_collection->Item(i, &device)))
 			return -1;
@@ -115,11 +113,11 @@ int List_Output_Devices()
 
 int Set_Output_Device_By_Index(UINT device_index)
 {
-	int count = Get_Output_Device_Count();
-	if (count == 0)
+	Get_Output_Device_Count();
+	if (device_count == -1)
 		return -1;
 
-	if (device_index >= 0 && device_index < count)
+	if (device_index >= 0 && device_index < device_count)
 	{
 		IMMDevice *device;
 		if (!SUCCEEDED(device_collection->Item(device_index, &device)))

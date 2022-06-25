@@ -16,6 +16,7 @@ IMMDeviceEnumerator *device_enumerator = NULL;
 LPWSTR default_device_id = NULL;
 IMMDevice *default_device = NULL;
 IMMDeviceCollection *device_collection = NULL;
+UINT device_count;
 
 extern "C" {
 
