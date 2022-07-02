@@ -5,6 +5,9 @@
 #include <tchar.h>
 #include <vector>
 #include <string>
+#include <atlstr.h>
+#include <fstream>
+#include <iostream>
 
 #include "windows.h"
 #include "Mmdeviceapi.h"
@@ -31,11 +34,13 @@ extern "C" {
 
 	__declspec(dllexport) int Init();
 	__declspec(dllexport) int Set_Output_Device_By_Id(std::wstring device_id);
-	__declspec(dllexport) int Set_Output_Device_By_Index(UINT device_index);
+	__declspec(dllexport) int Set_Output_Device_By_Index(int device_index);
+	__declspec(dllexport) int Get_Active_Device_Id();
 	__declspec(dllexport) int Get_Output_Device_Count();
 	__declspec(dllexport) int Refresh_Output_Devices_State();
 	__declspec(dllexport) int List_Output_Devices();
 	__declspec(dllexport) void Deinit();
+	__declspec(dllexport) int Export_Device_Config();
 }
 
 
