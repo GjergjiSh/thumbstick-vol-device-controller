@@ -21,7 +21,8 @@ IMMDevice *default_device = NULL;
 IMMDeviceCollection *device_collection = NULL;
 UINT device_count;
 
-extern "C" {
+extern "C"
+{
 
 	__declspec(dllexport) struct WindowsAudioPlaybackDevice
 	{
@@ -42,5 +43,3 @@ extern "C" {
 	__declspec(dllexport) void Deinit();
 	__declspec(dllexport) int Export_Device_Config();
 }
-
-

@@ -5,11 +5,11 @@ int Set_Output_Device_By_Id(std::wstring device_id)
 	IPolicyConfigVista *policy_config;
 	ERole reserved = eConsole;
 
-	//COCREATEINSTANCE CALLED AGAIN MIGHT NEED TO REFRESH DEVICES AFTERALL
-	if (!SUCCEEDED(CoCreateInstance(__uuidof(CPolicyConfigVistaClient), 
-									NULL, 
-									CLSCTX_ALL, 
-									__uuidof(IPolicyConfigVista), 
+	// COCREATEINSTANCE CALLED AGAIN MIGHT NEED TO REFRESH DEVICES AFTERALL
+	if (!SUCCEEDED(CoCreateInstance(__uuidof(CPolicyConfigVistaClient),
+									NULL,
+									CLSCTX_ALL,
+									__uuidof(IPolicyConfigVista),
 									(LPVOID *)&policy_config)))
 		return -1;
 
@@ -27,10 +27,10 @@ int Init()
 		return -1;
 
 	if (!SUCCEEDED(CoCreateInstance(__uuidof(MMDeviceEnumerator),
-						  NULL,
-						  CLSCTX_ALL,
-						  __uuidof(IMMDeviceEnumerator),
-						  (void **)&device_enumerator)))
+									NULL,
+									CLSCTX_ALL,
+									__uuidof(IMMDeviceEnumerator),
+									(void **)&device_enumerator)))
 		return -1;
 
 	if (Refresh_Output_Devices_State() != 0)
@@ -42,8 +42,8 @@ int Init()
 int Refresh_Output_Devices_State()
 {
 	if (!SUCCEEDED(device_enumerator->GetDefaultAudioEndpoint(eRender,
-										eMultimedia,
-										&default_device)))
+															  eMultimedia,
+															  &default_device)))
 		return -1;
 
 	if (!SUCCEEDED(default_device->GetId(&default_device_id)))
@@ -91,7 +91,7 @@ int List_Output_Devices()
 
 		if (!SUCCEEDED(device->OpenPropertyStore(STGM_READ, &property_store)))
 			return -1;
-		
+
 		PropVariantInit(&device_name);
 		if (!SUCCEEDED(property_store->GetValue(PKEY_Device_FriendlyName, &device_name)))
 			return -1;
@@ -146,18 +146,19 @@ void Print_Device_Name(UINT device_index)
 
 		if (!SUCCEEDED(device->OpenPropertyStore(STGM_READ, &property_store)))
 			return;
-		
+
 		PropVariantInit(&device_name);
 		if (!SUCCEEDED(property_store->GetValue(PKEY_Device_FriendlyName, &device_name)))
 			return;
-		
-		std::wstring ws(device_name.pwszVal); 
-		std::string result = std::string( ws.begin(), ws.end() );
+
+		std::wstring ws(device_name.pwszVal);
+		std::string result = std::string(ws.begin(), ws.end());
 		printf("Device ID: %i Device Name %s", device_index, result);
 	}
 }
 
-int Get_Active_Device_Id() {
+int Get_Active_Device_Id()
+{
 	if (device_count == -1)
 		return -1;
 
@@ -175,7 +176,8 @@ int Get_Active_Device_Id() {
 			return -1;
 
 		is_default = wcscmp(device_id, default_device_id) == 0;
-		if (is_default) {
+		if (is_default)
+		{
 			return i;
 		}
 	}
@@ -185,7 +187,8 @@ int Get_Active_Device_Id() {
 	return -1;
 }
 
-int Export_Device_Config() {
+int Export_Device_Config()
+{
 	if (device_count == -1)
 		return -1;
 
@@ -198,7 +201,6 @@ int Export_Device_Config() {
 
 	config_file.open("./config");
 
-
 	for (int i = 0; i < device_count; i++)
 	{
 		if (!SUCCEEDED(device_collection->Item(i, &device)))
@@ -209,19 +211,18 @@ int Export_Device_Config() {
 
 		if (!SUCCEEDED(device->OpenPropertyStore(STGM_READ, &property_store)))
 			return -1;
-		
+
 		PropVariantInit(&device_name);
 		if (!SUCCEEDED(property_store->GetValue(PKEY_Device_FriendlyName, &device_name)))
 			return -1;
 
 		is_default = wcscmp(device_id, default_device_id) == 0;
 		printf("%i %ws\n", is_default, device_name.pwszVal);
-		std::wstring ws(device_name.pwszVal); 
-		std::string result = std::string( ws.begin(), ws.end());
+		std::wstring ws(device_name.pwszVal);
+		std::string result = std::string(ws.begin(), ws.end());
 		config_file << result << "\n";
 		PropVariantClear(&device_name);
 	}
-
 
 	config_file.close();
 	property_store->Release();

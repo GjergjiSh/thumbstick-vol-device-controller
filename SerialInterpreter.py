@@ -1,5 +1,4 @@
 import serial
-import time
 
 class SerialInterpreter:
     def __init__(self, serial_port, serial_baudrate=115200, serial_timeout=.1):
