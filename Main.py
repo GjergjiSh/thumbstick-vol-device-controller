@@ -9,6 +9,7 @@ if __name__ == "__main__":
                                             config_file_path="config")
 
     serial_interpreter = SI.SerialInterpreter(serial_port="COM3")
+    volume_controller.update_apps()
 
     while serial_interpreter.arduino.is_open:
        serial_interpreter.interpret_input()
@@ -22,7 +23,7 @@ if __name__ == "__main__":
         elif serial_interpreter.moved_up:
             volume_controller.increase_volume(decibels=0.1)
         elif serial_interpreter.moved_left:
-            volume_controller.change_active_app_index(direction=-1)
+            volume_controller.change_active_app_index(direction=1)
         elif serial_interpreter.moved_right:
             volume_controller.change_active_app_index(direction=-1)
 

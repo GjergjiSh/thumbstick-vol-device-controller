@@ -1,7 +1,5 @@
 from pycaw.pycaw import AudioUtilities
-import time
 from enum import Enum
-import ctypes
 
 class Modes(Enum):
     APPLICATION = 1
@@ -19,7 +17,7 @@ class VolumeController:
         self.update_apps()
     
     def update_apps(self):
-        self.apps = AudioUtilities.GetAllapps()
+        self.apps = AudioUtilities.GetAllSessions()
         for session in self.apps:
             if not session.Process:
                 self.apps.remove(session)
@@ -67,10 +65,9 @@ class VolumeController:
     def change_active_app_index(self, direction):
         if direction == 1 and self.active_app_index < len(self.apps) - 1:
             self.active_app_index += 1
-        elif direction == -1 and self.active_app_index != 0:
+        elif direction == -1 and self.active_app_index > 0:
             self.active_app_index -= 1
         print("Active Application: {}".format(self.apps[self.active_app_index]))
-
 
     def switch_mode(self):
         current_mode_idx = list(Modes).index(self.active_mode)
